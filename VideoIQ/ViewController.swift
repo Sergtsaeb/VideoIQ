@@ -77,7 +77,17 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             } else {
                 print("Succeeded saving.")
             }
-        } }
+        }
+        print("Creating movie file was a success.")
+        
+        DispatchQueue.main.async {
+            let results = ResultsViewController(style: .plain)
+            results.movieURL = self.movieURL
+            results.predictions = self.predictions
+            self.navigationController?.pushViewController(results,
+                                                          animated: true)
+        }
+    }
     
     func configureVideoDeviceInput() throws {
         // find the default video device or throw an error
@@ -177,7 +187,64 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             // we're done for now, so exit
             return
         }
+        
+        guard readyToAnalyze else { return }
+        readyToAnalyze = false
+        
+        // push work to a background thread
+        DispatchQueue.global().async {
+            // set our target scale size
+            let inputSize = CGSize(width: 227.0, height: 227.0)
+            let image = CIImage(cvImageBuffer: pixelBuffer)
+            // create a CVPixelBuffer at the smaller size
+            guard let resizedPixelBuffer = image.pixelBuffer(at:
+                inputSize, context: self.context) else { return }
+            // pass it to Core ML to identify an object
+            let prediction = try? self.model.prediction(image:
+                resizedPixelBuffer)
+            // use the identified object name or "Unknown"
+            let predictionName = prediction?.classLabel ?? "Unknown"
+            // print a log of what's been found for debug purposes
+            print("\(self.predictions.count): \(predictionName)")
+            // figure out how much time has passed in the video
+            let timeDiff = currentTime - self.startTime
+            // append the new object to our array of predictions
+            self.predictions.append((timeDiff, predictionName))
+            // mark our code as being ready to analyze another frame
+            self.readyToAnalyze = true
+        }
     }
     
     
+}
+
+extension CIImage {
+    func pixelBuffer(at size: CGSize, context: CIContext) ->
+        CVPixelBuffer? {
+            let attributes = [kCVPixelBufferCGImageCompatibilityKey:
+                kCFBooleanTrue, kCVPixelBufferCGBitmapContextCompatibilityKey:
+                kCFBooleanTrue] as CFDictionary
+            var pixelBuffer: CVPixelBuffer?
+            let status = CVPixelBufferCreate(kCFAllocatorDefault,
+                                             Int(size.width), Int(size.height), kCVPixelFormatType_32ARGB,
+                                             attributes, &pixelBuffer)
+            guard status == kCVReturnSuccess else { return nil }
+            let scale = size.width / self.extent.size.width
+            let resizedImage = self.transformed(by:
+                CGAffineTransform(scaleX: scale, y: scale))
+            let width = resizedImage.extent.width
+            let height = resizedImage.extent.height
+            let yOffset = (CGFloat(height) - size.height) / 2.0
+            let rect = CGRect(x: (CGFloat(width) - size.width) / 2.0,
+                              y: yOffset, width: size.width, height: size.height)
+            let croppedImage = resizedImage.cropped(to: rect)
+            let translatedImage = croppedImage.transformed(by:
+                CGAffineTransform(translationX: 0, y: -yOffset))
+            CVPixelBufferLockBaseAddress(pixelBuffer!,
+                                         CVPixelBufferLockFlags(rawValue: 0))
+            context.render(translatedImage, to: pixelBuffer!)
+            CVPixelBufferUnlockBaseAddress(pixelBuffer!,
+                                           CVPixelBufferLockFlags(rawValue: 0))
+            return pixelBuffer
+    }
 }

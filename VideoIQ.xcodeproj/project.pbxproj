@@ -12,6 +12,8 @@
 		C06F28DE1F3833E700A3F69D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C06F28DC1F3833E700A3F69D /* Main.storyboard */; };
 		C06F28E01F3833E700A3F69D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C06F28DF1F3833E700A3F69D /* Assets.xcassets */; };
 		C06F28E31F3833E700A3F69D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C06F28E11F3833E700A3F69D /* LaunchScreen.storyboard */; };
+		C06F28EB1F38345400A3F69D /* SqueezeNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = C06F28EA1F38342300A3F69D /* SqueezeNet.mlmodel */; };
+		C06F28ED1F3834A600A3F69D /* CapturePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C06F28EC1F3834A600A3F69D /* CapturePreviewView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +24,8 @@
 		C06F28DF1F3833E700A3F69D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C06F28E21F3833E700A3F69D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C06F28E41F3833E700A3F69D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C06F28EA1F38342300A3F69D /* SqueezeNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SqueezeNet.mlmodel; sourceTree = "<group>"; };
+		C06F28EC1F3834A600A3F69D /* CapturePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePreviewView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,10 +60,12 @@
 			children = (
 				C06F28D81F3833E700A3F69D /* AppDelegate.swift */,
 				C06F28DA1F3833E700A3F69D /* ViewController.swift */,
+				C06F28EC1F3834A600A3F69D /* CapturePreviewView.swift */,
 				C06F28DC1F3833E700A3F69D /* Main.storyboard */,
 				C06F28DF1F3833E700A3F69D /* Assets.xcassets */,
 				C06F28E11F3833E700A3F69D /* LaunchScreen.storyboard */,
 				C06F28E41F3833E700A3F69D /* Info.plist */,
+				C06F28EA1F38342300A3F69D /* SqueezeNet.mlmodel */,
 			);
 			path = VideoIQ;
 			sourceTree = "<group>";
@@ -135,7 +141,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C06F28ED1F3834A600A3F69D /* CapturePreviewView.swift in Sources */,
 				C06F28DB1F3833E700A3F69D /* ViewController.swift in Sources */,
+				C06F28EB1F38345400A3F69D /* SqueezeNet.mlmodel in Sources */,
 				C06F28D91F3833E700A3F69D /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

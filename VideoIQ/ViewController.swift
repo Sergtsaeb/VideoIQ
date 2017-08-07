@@ -13,7 +13,7 @@ enum SetupError: Error {
     case noVideoDevice, videoInputFailed, videoOutputFailed
 }
 
-class ViewController: UIViewController, UINavigationControllerDelegate {
+class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
     let model = SqueezeNet()
     let context = CIContext()
     let session = AVCaptureSession()
@@ -26,7 +26,6 @@ class ViewController: UIViewController, UINavigationControllerDelegate {
     var startTime: CMTime!
     var movieURL: URL!
     var predictions = [(time: CMTime, prediction: String)]()
-   
     
     
     override func viewDidLoad() {
@@ -87,6 +86,24 @@ class ViewController: UIViewController, UINavigationControllerDelegate {
         session.beginConfiguration()
         try configureVideoDeviceInput()
         session.commitConfiguration()
+    }
+    
+    func configureVideoDeviceOutput() throws {
+        if session.canAddOutput(videoOutput) {
+            // configure this view controller to receive video data packets
+            videoOutput.setSampleBufferDelegate(self, queue:
+                DispatchQueue.main)
+            session.addOutput(videoOutput)
+            // force portrait recording
+            for connection in videoOutput.connections {
+                for port in connection.inputPorts {
+                    if port.mediaType == .video {
+                        connection.videoOrientation = .portrait
+                    } }
+            }
+        } else {
+            throw SetupError.videoOutputFailed
+        }
     }
     
 }

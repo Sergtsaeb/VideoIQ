@@ -85,6 +85,8 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     func configureSession() throws {
         session.beginConfiguration()
         try configureVideoDeviceInput()
+        try configureVideoDeviceOutput()
+        try configureMovieWriting()
         session.commitConfiguration()
     }
     
@@ -103,6 +105,36 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             }
         } else {
             throw SetupError.videoOutputFailed
+        }
+    }
+    
+    func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
+    
+    func configureMovieWriting() throws {
+        movieURL =
+            getDocumentsDirectory().appendingPathComponent("movie.mov")
+        let fm = FileManager.default
+        if fm.fileExists(atPath: movieURL.path) {
+            try fm.removeItem(at: movieURL)
+        }
+        
+        // tell our asset writer where to save
+        assetWriter = try AVAssetWriter(url: movieURL, fileType: .mp4)
+        
+        // figure out the best settings for writing MP4 movies
+        let settings =
+            videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: .
+                mp4)
+        // create a writer using those settings, and configure it for real-time video
+        writerInput = AVAssetWriterInput(mediaType: .video,
+                                         outputSettings: settings)
+        writerInput.expectsMediaDataInRealTime = true
+        // add the video recorder to the main recorder, so we're ready to go
+        if assetWriter.canAdd(writerInput) {
+            assetWriter.add(writerInput)
         }
     }
     

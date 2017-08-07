@@ -138,4 +138,32 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
         }
     }
     
+    func captureOutput(_ output: AVCaptureOutput, didOutput
+        sampleBuffer: CMSampleBuffer, from connection:
+        AVCaptureConnection) {
+        guard recordingActive else { return }
+        guard CMSampleBufferDataIsReady(sampleBuffer) == true else { return }
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        
+        if assetWriter.status == .failed {
+            // Uh oh!
+            return
+        }
+        if writerInput.isReadyForMoreMediaData {
+            writerInput.append(sampleBuffer)
+        }
+        
+        let currentTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        if assetWriter.status == .unknown {
+            // store this away so we can calculate time offsets later
+            startTime = currentTime
+            // start writing data to disk
+            assetWriter.startWriting()
+            assetWriter.startSession(atSourceTime: currentTime)
+            // we're done for now, so exit
+            return
+        }
+    }
+    
+    
 }

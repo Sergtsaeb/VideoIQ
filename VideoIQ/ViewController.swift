@@ -27,6 +27,7 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     var movieURL: URL!
     var predictions = [(time: CMTime, prediction: String)]()
     
+    @IBOutlet weak var objectDescription: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -196,27 +197,35 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
             // set our target scale size
             let inputSize = CGSize(width: 227.0, height: 227.0)
             let image = CIImage(cvImageBuffer: pixelBuffer)
+            
             // create a CVPixelBuffer at the smaller size
             guard let resizedPixelBuffer = image.pixelBuffer(at:
                 inputSize, context: self.context) else { return }
+            
             // pass it to Core ML to identify an object
-            let prediction = try? self.model.prediction(image:
-                resizedPixelBuffer)
+            let prediction = try? self.model.prediction(image: resizedPixelBuffer)
+            
             // use the identified object name or "Unknown"
             let predictionName = prediction?.classLabel ?? "Unknown"
+            
             // print a log of what's been found for debug purposes
             print("\(self.predictions.count): \(predictionName)")
+            
             // figure out how much time has passed in the video
             let timeDiff = currentTime - self.startTime
-            // append the new object to our array of predictions
+            
+            // append the new object to our array of predictions if it isnt already in
             self.predictions.append((timeDiff, predictionName))
+            self.objectDescription.text = predictionName
+            }
+           
+            
             // mark our code as being ready to analyze another frame
             self.readyToAnalyze = true
         }
     }
     
-    
-}
+
 
 extension CIImage {
     func pixelBuffer(at size: CGSize, context: CIContext) ->

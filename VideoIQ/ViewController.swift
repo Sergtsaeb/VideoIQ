@@ -63,7 +63,21 @@ class ViewController: UIViewController, UINavigationControllerDelegate, AVCaptur
     @objc func startRecording() {
         recordingActive = true
         session.startRunning()
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title:
+            "Stop", style: .plain, target: self, action:
+            #selector(stopRecording))
     }
+    
+    @objc func stopRecording() {
+        recordingActive = false
+        assetWriter?.finishWriting {
+            if (self.assetWriter?.status == .failed) {
+                print("Failed to save.")
+            } else {
+                print("Succeeded saving.")
+            }
+        } }
     
     func configureVideoDeviceInput() throws {
         // find the default video device or throw an error
